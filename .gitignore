@@ -2,3 +2,5 @@ agency-swarm-main/
 .venv/
 .env
 .cursor
+temp/
+__pycache__/
