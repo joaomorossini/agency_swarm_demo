@@ -1,0 +1,4 @@
+agency-swarm-main/
+.venv/
+.env
+.cursor

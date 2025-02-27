@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "agency-ai-demo"
+version = "0.1.0"
+description = "Private demo for Technical Project Manager job application @ Agency AI (creator of the Agency Swarm framework)"
+authors = ["João Morossini <joaomorossini@duck.com>"]
+license = "MIT"
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "3.11.*"
+agency-swarm = ">=0.4.4,<0.5.0"
+composio-core = "^0.5.28"
+composio-langchain = "^0.5.11"
+langchain = ">=0.2,<0.3"
+langchain-core = ">=0.2.38,<0.3"
+requests = "^2.32.3"
+openai = "^1.64.0"
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
