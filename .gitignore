@@ -4,3 +4,4 @@ agency-swarm-main/
 .cursor
 temp/
 __pycache__/
+settings.json
