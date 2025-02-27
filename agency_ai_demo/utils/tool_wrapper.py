@@ -220,7 +220,7 @@ def convert_langchain_tool(
         c for c in tool_name.replace("-", "_") if c.isalnum() or c == "_"
     )
     if safe_name:
-        class_name = safe_name[0].upper() + safe_name[1:] + "Tool"
+        class_name = safe_name[0].upper() + safe_name[1:] + "Converted"
     else:
         class_name = "ConvertedTool"
 
