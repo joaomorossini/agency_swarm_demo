@@ -3,6 +3,7 @@ import os
 from agency_swarm.agents import Agent
 from .tools.GetTasks import GetTasksTool
 from .tools.GetTask import GetTaskTool
+from .tools.CreateTask import CreateTaskTool
 
 
 class NotionProjectAgent(Agent):
@@ -22,7 +23,7 @@ class NotionProjectAgent(Agent):
             instructions="./instructions.md",
             files_folder="./files",
             schemas_folder="./schemas",
-            tools=[GetTasksTool, GetTaskTool],
+            tools=[GetTasksTool, GetTaskTool, CreateTaskTool],
             tools_folder="./tools",
             model="gpt-4o",
             temperature=0.3,
