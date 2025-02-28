@@ -11,6 +11,7 @@ class TechnicalProjectManager(Agent):
             schemas_folder="./schemas",
             tools=[],
             tools_folder="./tools",
+            model="gpt-4o",
             temperature=0.3,
             max_prompt_tokens=25000,
         )
