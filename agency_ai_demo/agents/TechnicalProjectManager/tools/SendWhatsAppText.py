@@ -53,8 +53,16 @@ class SendWhatsAppText(BaseTool):
             "apikey": os.getenv("EVOLUTION_API_KEY"),
         }
 
+        text_message = (
+            "Agency Swarm Project Manager: \n"
+            + self.message
+            + "\n\n"
+            + "--------------------------------\n"
+            + "This message was sent by an AI agent. *Please do not reply*"
+        )
+
         # Prepare the request body
-        data = {"number": self.phone_number, "text": self.message}
+        data = {"number": self.phone_number, "text": text_message}
 
         try:
             # Make the POST request
