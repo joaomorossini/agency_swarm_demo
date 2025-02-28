@@ -24,7 +24,7 @@ class GetTasksTool(BaseTool):
 
     status: str = Field(
         default=None,
-        description="Filter tasks by status. Options: Backlog, In Progress, In Review, Testing, Completed.",
+        description="Filter tasks by status. Options: Backlog, In Progress, Testing, Completed.",
     )
 
     priority: str = Field(

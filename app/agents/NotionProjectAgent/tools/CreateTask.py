@@ -35,7 +35,7 @@ class CreateTaskTool(BaseTool):
 
     status: str = Field(
         default=None,
-        description="Status of the task. Options: Backlog, In Progress, In Review, Testing, Completed.",
+        description="Status of the task. Options: Backlog, In Progress, Testing, Completed.",
     )
 
     priority: str = Field(

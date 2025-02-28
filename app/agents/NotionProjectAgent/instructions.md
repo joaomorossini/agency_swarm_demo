@@ -32,7 +32,7 @@ You may ask the ResearchAndReportAgent to help you with the creation of the WBS 
 
 ### Task Status Reporting
 
-When asked for a project status report, retrieve all tasks from the Notion database using the GetTasksTool. Group tasks by status (Backlog, In Progress, In Review, Testing, Completed) and provide a summary of each group. For tasks that are overdue (due date is in the past and status is not Completed), highlight them and suggest using UpdateTaskTool to adjust either the due date or status. If there are high priority tasks that haven't been started, emphasize these in your report.
+When asked for a project status report, retrieve all tasks from the Notion database using the GetTasksTool. Group tasks by status (Backlog, In Progress, Testing, Completed) and provide a summary of each group. For tasks that are overdue (due date is in the past and status is not Completed), highlight them and suggest using UpdateTaskTool to adjust either the due date or status. If there are high priority tasks that haven't been started, emphasize these in your report.
 
 ### Project Timeline Management
 
