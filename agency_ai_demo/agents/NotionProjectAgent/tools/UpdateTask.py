@@ -32,6 +32,11 @@ class UpdateTaskTool(BaseTool):
         description="The new title of the task.",
     )
 
+    task_description: str = Field(
+        default=None,
+        description="The new text description of the task.",
+    )
+
     status: str = Field(
         default=None,
         description="New status of the task. Options: Backlog, In Progress, In Review, Testing, Completed.",
@@ -89,6 +94,14 @@ class UpdateTaskTool(BaseTool):
         if self.title is not None:
             properties["Task Name"] = {
                 "title": [{"type": "text", "text": {"content": self.title}}]
+            }
+
+        # Add task description if provided
+        if self.task_description is not None:
+            properties["Task Description"] = {
+                "rich_text": [
+                    {"type": "text", "text": {"content": self.task_description}}
+                ]
             }
 
         # Add status if provided

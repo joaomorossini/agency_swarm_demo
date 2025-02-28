@@ -19,37 +19,37 @@ class GetTasksTool(BaseTool):
     # Add example_field with a default value to satisfy BaseTool validation
     example_field: str = Field(
         default="notion_tasks",
-        description="Identifier for this tool. Can be left at its default value."
+        description="Identifier for this tool. Can be left at its default value.",
     )
 
     status: str = Field(
         default=None,
-        description="Filter tasks by status. Options: Backlog, In Progress, In Review, Testing, Completed."
+        description="Filter tasks by status. Options: Backlog, In Progress, In Review, Testing, Completed.",
     )
-    
+
     priority: str = Field(
         default=None,
-        description="Filter tasks by priority. Options: High, Medium, Low."
+        description="Filter tasks by priority. Options: High, Medium, Low.",
     )
-    
+
     due_date_before: str = Field(
         default=None,
-        description="Filter tasks due before this date (format: YYYY-MM-DD)."
+        description="Filter tasks due before this date (format: YYYY-MM-DD).",
     )
-    
+
     due_date_after: str = Field(
         default=None,
-        description="Filter tasks due after this date (format: YYYY-MM-DD)."
+        description="Filter tasks due after this date (format: YYYY-MM-DD).",
     )
-    
+
     sort_by: str = Field(
         default="Due Date",
-        description="Property to sort by. Options: Due Date, Status, Priority, Task Name."
+        description="Property to sort by. Options: Due Date, Status, Priority, Task Name.",
     )
-    
+
     sort_direction: str = Field(
         default="ascending",
-        description="Sort direction. Options: ascending, descending."
+        description="Sort direction. Options: ascending, descending.",
     )
 
     def run(self):
@@ -60,7 +60,7 @@ class GetTasksTool(BaseTool):
             dict: The JSON response from the Notion API containing the tasks.
         """
         import requests
-        
+
         # Use the database ID from the environment variable
         database_id = os.getenv("NOTION_DATABASE_ID")
 
@@ -76,57 +76,38 @@ class GetTasksTool(BaseTool):
 
         # Prepare the request body
         data = {}
-        
+
         # Build filter
         filters = []
-        
+
         if self.status:
-            filters.append({
-                "property": "Status",
-                "status": {
-                    "equals": self.status
-                }
-            })
-            
+            filters.append({"property": "Status", "status": {"equals": self.status}})
+
         if self.priority:
-            filters.append({
-                "property": "Priority",
-                "select": {
-                    "equals": self.priority
-                }
-            })
-            
+            filters.append(
+                {"property": "Priority", "select": {"equals": self.priority}}
+            )
+
         if self.due_date_before:
-            filters.append({
-                "property": "Due Date",
-                "date": {
-                    "before": self.due_date_before
-                }
-            })
-            
+            filters.append(
+                {"property": "Due Date", "date": {"before": self.due_date_before}}
+            )
+
         if self.due_date_after:
-            filters.append({
-                "property": "Due Date",
-                "date": {
-                    "after": self.due_date_after
-                }
-            })
-        
+            filters.append(
+                {"property": "Due Date", "date": {"after": self.due_date_after}}
+            )
+
         if filters:
             if len(filters) > 1:
-                data["filter"] = {
-                    "and": filters
-                }
+                data["filter"] = {"and": filters}
             else:
                 data["filter"] = filters[0]
-        
+
         # Add sorting
         if self.sort_by:
             data["sorts"] = [
-                {
-                    "property": self.sort_by,
-                    "direction": self.sort_direction
-                }
+                {"property": self.sort_by, "direction": self.sort_direction}
             ]
 
         # Make the request

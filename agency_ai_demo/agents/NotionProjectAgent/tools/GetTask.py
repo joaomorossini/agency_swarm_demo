@@ -13,7 +13,7 @@ class GetTaskTool(BaseTool):
     """
     Tool for retrieving a specific task (page) from Notion.
     This tool fetches the properties of a specific task using its page ID and
-    by default, also fetches the page content (blocks) with all nested blocks.
+    by default, does not fetch the page content (blocks). Content can be included by setting include_content to True.
     """
 
     # Add example_field with a default value to satisfy BaseTool validation
@@ -28,7 +28,7 @@ class GetTaskTool(BaseTool):
     )
 
     include_content: bool = Field(
-        default=True,
+        default=False,
         description="Whether to include the page content (blocks) in the response. When True, all nested blocks will be included.",
     )
 

@@ -28,6 +28,11 @@ class CreateTaskTool(BaseTool):
         description="The title of the task (required).",
     )
 
+    task_description: str = Field(
+        default=None,
+        description="A text description of the task.",
+    )
+
     status: str = Field(
         default=None,
         description="Status of the task. Options: Backlog, In Progress, In Review, Testing, Completed.",
@@ -104,6 +109,14 @@ class CreateTaskTool(BaseTool):
         properties["Task Name"] = {
             "title": [{"type": "text", "text": {"content": self.title}}]
         }
+
+        # Add task description if provided
+        if self.task_description:
+            properties["Task Description"] = {
+                "rich_text": [
+                    {"type": "text", "text": {"content": self.task_description}}
+                ]
+            }
 
         # Add status if provided
         if self.status:
