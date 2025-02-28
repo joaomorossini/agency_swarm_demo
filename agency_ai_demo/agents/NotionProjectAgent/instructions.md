@@ -21,7 +21,6 @@ Use these IDs unless specified otherwise
 - Status
 - Priority
 - Due Date
-- Assigned To
 
 ## WORKFLOWS
 

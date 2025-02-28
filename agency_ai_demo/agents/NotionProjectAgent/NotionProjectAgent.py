@@ -5,6 +5,7 @@ from .tools.GetTasks import GetTasksTool
 from .tools.GetTask import GetTaskTool
 from .tools.CreateTask import CreateTaskTool
 from .tools.UpdateTask import UpdateTaskTool
+from .tools.DeleteTask import DeleteTaskTool
 
 
 class NotionProjectAgent(Agent):
@@ -24,7 +25,13 @@ class NotionProjectAgent(Agent):
             instructions="./instructions.md",
             files_folder="./files",
             schemas_folder="./schemas",
-            tools=[GetTasksTool, GetTaskTool, CreateTaskTool, UpdateTaskTool],
+            tools=[
+                GetTasksTool,
+                GetTaskTool,
+                CreateTaskTool,
+                UpdateTaskTool,
+                DeleteTaskTool,
+            ],
             tools_folder="./tools",
             model="gpt-4o",
             temperature=0.3,
