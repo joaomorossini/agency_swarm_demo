@@ -97,16 +97,25 @@ class NotionAgency(Agency):
         except ImportError:
             raise Exception("Please install gradio: pip install gradio")
 
-        # Use the specific Notion embed URL provided by the user
+        # Use the Notion embed URL from environment variables
         notion_embed_url = os.getenv("NOTION_DB_URL")
 
-        # Create iframe with the exact attributes provided by the user
-        iframe_html = f"""
-        <iframe src="{notion_embed_url}" width="100%" height="400" frameborder="1" allowfullscreen></iframe>
-        <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #888;">
-          If the Notion board doesn't appear, please ensure your Notion page is shared publicly with "Share to web" enabled.
-        </div>
-        """
+        # Function to generate iframe HTML with timestamp for cache busting
+        def generate_iframe_html(ts=None):
+            # Add timestamp parameter to force refresh
+            url = notion_embed_url
+            if ts:
+                separator = "&" if "?" in url else "?"
+                url = f"{url}{separator}ts={ts}"
+
+            return f"""
+            <div id="iframe-container" style="width: 100%;">
+                <iframe src="{url}" width="100%" height="400" frameborder="1" allowfullscreen id="notion-iframe"></iframe>
+                <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #888;">
+                  If the Notion board doesn't appear, please ensure your Notion page is shared publicly with "Share to web" enabled.
+                </div>
+            </div>
+            """
 
         js = """function () {
           gradioURL = window.location.href
@@ -128,12 +137,27 @@ class NotionAgency(Agency):
         recipient_agent_names = [agent.name for agent in self.main_recipients]
         recipient_agent = self.main_recipients[0]
 
+        # Track iframe visibility state
+        iframe_visible = True
+
         with gr.Blocks(js=js) as demo:
             chatbot_queue = queue.Queue()
 
-            # Add the iframe at the top, taking up space above the chatbot
+            # Create state for iframe visibility
+            iframe_state = gr.State(value=True)
+
+            # Add toggle button and refresh button at the top
             with gr.Row():
-                iframe = gr.HTML(iframe_html)
+                toggle_button = gr.Button(
+                    value="Hide Notion Board", elem_id="toggle-button"
+                )
+                refresh_button = gr.Button(
+                    value="Refresh Notion Board", elem_id="refresh-button"
+                )
+
+            # Row for iframe with initial HTML
+            with gr.Row() as iframe_row:
+                iframe = gr.HTML(value=generate_iframe_html())
 
             # Original components from Agency.demo_gradio
             chatbot = gr.Chatbot(height=height)
@@ -148,6 +172,34 @@ class NotionAgency(Agency):
                 with gr.Column(scale=1):
                     file_upload = gr.Files(label="OpenAI Files", type="filepath")
             button = gr.Button(value="Send", variant="primary")
+
+            # Function to toggle iframe visibility
+            def toggle_iframe(state):
+                new_state = not state
+                return {
+                    iframe_row: gr.update(visible=new_state),
+                    toggle_button: (
+                        "Show Notion Board" if not new_state else "Hide Notion Board"
+                    ),
+                    iframe_state: new_state,
+                }
+
+            # Function to refresh iframe with timestamp
+            def refresh_iframe():
+                import time
+
+                # Generate new iframe HTML with current timestamp
+                new_html = generate_iframe_html(int(time.time()))
+                return gr.update(value=new_html)
+
+            # Connect buttons to functions
+            toggle_button.click(
+                toggle_iframe,
+                inputs=[iframe_state],
+                outputs=[iframe_row, toggle_button, iframe_state],
+            )
+
+            refresh_button.click(refresh_iframe, outputs=[iframe])
 
             def handle_dropdown_change(selected_option):
                 nonlocal recipient_agent
