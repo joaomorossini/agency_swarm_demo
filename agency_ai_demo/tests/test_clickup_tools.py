@@ -6,7 +6,7 @@ import json
 # Add the parent directory to sys.path to import modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from agency_ai_demo.tools.clickup_tools import (
+from agents.ClickUpAgent.tools.ClickUpTools import (
     CreateTaskTool,
     DeleteTaskTool,
     UpdateTaskTool,

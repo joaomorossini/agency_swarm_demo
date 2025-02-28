@@ -4,7 +4,7 @@ from openai import AzureOpenAI
 from agency_swarm import set_openai_client
 from agency_swarm import Agent
 
-from tools.clickup_tools import initialize_clickup_tools
+from agents.ClickUpAgent.tools.ClickUpTools import initialize_clickup_tools
 
 load_dotenv()
 
@@ -34,7 +34,7 @@ def main():
 
     print("\nTesting get_tasks_tool...")
     # Test GetTasksTool directly without using the agent
-    from tools.clickup_tools import GetTasksTool
+    from agents.ClickUpAgent.tools.ClickUpTools import GetTasksTool
 
     tool = GetTasksTool()
     result = tool._run(list_id=901307715461)

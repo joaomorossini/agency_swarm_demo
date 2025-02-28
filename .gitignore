@@ -5,3 +5,5 @@ agency-swarm-main/
 temp/
 __pycache__/
 settings.json
+.DS_Store
+.idea/

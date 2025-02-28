@@ -1,4 +1,5 @@
 import os
+import sys
 import requests
 from dotenv import load_dotenv
 from langchain.tools import StructuredTool, BaseTool, tool
@@ -9,37 +10,6 @@ from typing import Any, Type, List, Dict
 import datetime
 import json
 import re
-
-
-# Add a utility function to ensure all values are JSON serializable
-def _ensure_serializable(obj):
-    """
-    Recursively ensure that an object and all its contents are JSON serializable.
-    Handles Pydantic Field objects by extracting their values.
-    """
-    # Handle None
-    if obj is None:
-        return None
-
-    # Check if it's a Field object (has certain common Field attributes)
-    if hasattr(obj, "default") and hasattr(obj, "description"):
-        # Return the default value or None
-        if obj.default is not None:
-            return obj.default
-        return None
-
-    # Handle dictionaries
-    if isinstance(obj, dict):
-        return {k: _ensure_serializable(v) for k, v in obj.items()}
-
-    # Handle lists
-    if isinstance(obj, list):
-        return [_ensure_serializable(item) for item in obj]
-
-    # Return other objects as is
-    return obj
-
-
 from composio.tools.local.clickup.actions.base import OpenAPIAction
 from composio.tools.local.clickup.actions.create_task import (
     CreateTask,
@@ -76,7 +46,11 @@ from composio.tools.local.clickup.actions.get_task import (
     GetTaskResponse,
 )
 
+# Add the parent directory to sys.path to enable imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from utils.tool_wrapper import convert_langchain_tools
+from utils.ensure_serializable import ensure_serializable
 
 load_dotenv()
 CLICKUP_TOKEN = os.getenv("CLICKUP_TOKEN")
@@ -306,7 +280,7 @@ class CreateTaskTool(BaseTool):
         # Add any other parameters from kwargs
         for key, value in kwargs.items():
             if value is not None and key != "kwargs" and key != "list_id":
-                params[key] = _ensure_serializable(value)
+                params[key] = ensure_serializable(value)
 
         # For testing, ensure we have the minimum required parameters
         if "name" not in params:
@@ -461,7 +435,7 @@ class DeleteTaskTool(BaseTool):
 
         # Make sure all parameters are JSON serializable
         params = {
-            key: _ensure_serializable(value)
+            key: ensure_serializable(value)
             for key, value in kwargs.items()
             if value is not None and key != "kwargs" and key != "task_id"
         }
@@ -772,13 +746,11 @@ class UpdateTaskTool(BaseTool):
         # Add update parameters from kwargs
         for key, value in kwargs.items():
             if value is not None and key != "kwargs" and key != "task_id":
-                update_params[key] = _ensure_serializable(value)
+                update_params[key] = ensure_serializable(value)
 
         # Make sure all parameters are JSON serializable
         params = {
-            k: _ensure_serializable(v)
-            for k, v in update_params.items()
-            if v is not None
+            k: ensure_serializable(v) for k, v in update_params.items() if v is not None
         }
 
         print(f"Update parameters: {params}")
@@ -967,7 +939,7 @@ class AddDependencyTool(BaseTool):
 
         # Make sure all parameters are JSON serializable
         params = {
-            key: _ensure_serializable(value)
+            key: ensure_serializable(value)
             for key, value in kwargs.items()
             if value is not None and key != "kwargs" and key != "task_id"
         }
@@ -1139,7 +1111,7 @@ class GetTasksTool(BaseTool):
 
         # Make sure all parameters are JSON serializable
         query_params = {
-            k: _ensure_serializable(v)
+            k: ensure_serializable(v)
             for k, v in kwargs.items()
             if v is not None and k != "kwargs"
         }
@@ -1184,170 +1156,6 @@ class GetTasksTool(BaseTool):
         print(f"Returning filtered response with {len(filtered_response)} items")
 
         return filtered_response
-
-
-class GetTaskTool(BaseTool):
-    name: str = "get_task_tool"
-    description: str = """
-    Tool to retrieve details of a specific task from ClickUp based on its ID.
-    - Get Task:
-        Invoke: "GetTaskTool" with the appropriate parameters.
-        
-    Parameters:
-    - task_id (required): The ID of the task to retrieve
-    - custom_task_ids (optional): Whether to use custom task IDs
-    - team_id (optional): Team ID for the task
-    - include_subtasks (optional): Whether to include subtasks
-    """
-    args_schema: Type[BaseModel] = GetTaskRequest
-    headers: dict = {"Authorization": f"{CLICKUP_TOKEN}"}
-
-    def __init__(self, **data):
-        super().__init__(**data)
-
-    def _run(self, **kwargs) -> Any:
-        """Executes task retrieval from ClickUp"""
-
-        # Log the received parameters to help debug
-        print("\n==== GetTaskTool._run received parameters: ====")
-        print(f"kwargs: {kwargs}")
-
-        # Extract task_id from different possible locations
-        task_id = None
-        task_name = None
-
-        # 1. Direct task_id parameter
-        if "task_id" in kwargs:
-            task_id = kwargs.get("task_id")
-            print(f"Found task_id in direct parameter: {task_id}")
-
-        # 2. Check if task_id is inside nested kwargs
-        if "kwargs" in kwargs and isinstance(kwargs["kwargs"], dict):
-            task_id = task_id or kwargs["kwargs"].get("task_id")
-            print(f"Found task_id in nested kwargs: {task_id}")
-
-        # 3. Check if task_id is in FieldInfo format
-        if "kwargs" in kwargs and hasattr(kwargs["kwargs"], "task_id"):
-            if hasattr(kwargs["kwargs"].task_id, "default"):
-                task_id = kwargs["kwargs"].task_id.default
-                print(f"Found task_id in FieldInfo default: {task_id}")
-
-        # 4. Check for task_id in description or raw query
-        if "kwargs" in kwargs and hasattr(kwargs["kwargs"], "description"):
-            desc = kwargs["kwargs"].description
-            # Look for task ID pattern in the description
-            task_id_match = re.search(r'task_id[=:]\s*["\']?([0-9a-z]{8,})["\']?', desc)
-            if task_id_match:
-                task_id = task_id_match.group(1)
-                print(f"Found task_id in description: {task_id}")
-
-            # Look for task name in the description
-            task_name_match = re.search(r'task\s+["\']([^"\']+)["\']', desc)
-            if task_name_match:
-                task_name = task_name_match.group(1).strip()
-                print(f"Found task_name in description: {task_name}")
-
-        # 5. Check any string parameters for task_id
-        for k, v in kwargs.items():
-            if isinstance(v, str):
-                # Check if the parameter contains a task ID pattern
-                task_id_match = re.search(
-                    r'task_id[=:]\s*["\']?([0-9a-z]{8,})["\']?', v
-                )
-                if task_id_match:
-                    task_id = task_id_match.group(1)
-                    print(f"Found task_id in string parameter: {task_id}")
-                    break
-
-                # Check for task name pattern in the string
-                task_name_match = re.search(r'task\s+["\']([^"\']+)["\']', v)
-                if task_name_match:
-                    task_name = task_name_match.group(1).strip()
-                    print(f"Found task_name in string parameter: {task_name}")
-                    break
-
-        # 6. If task name found but no ID, try to lookup ID by name
-        if not task_id and task_name:
-            try:
-                # Get all tasks in the list to find the task ID by name
-                get_tasks_tool = GetTasksTool()
-                tasks = get_tasks_tool._run(list_id=901307715461)
-
-                # Find the task by name
-                for task in tasks:
-                    if task.get("name") == task_name:
-                        task_id = task.get("id")
-                        print(f"Found task_id {task_id} for task name '{task_name}'")
-                        break
-            except Exception as e:
-                print(f"Error getting task ID from name: {e}")
-
-        # 7. Hardcoded fallback for testing
-        if not task_id and task_name:
-            if task_name == "TEST TASK 2":
-                task_id = "86a702gha"  # Known ID of TEST TASK 2
-                print(f"Using hardcoded task_id for 'TEST TASK 2': {task_id}")
-            elif task_name == "TEST TASK":
-                task_id = "86a700c6e"  # Known ID of TEST TASK
-                print(f"Using hardcoded task_id for 'TEST TASK': {task_id}")
-
-        if not task_id:
-            raise ToolException("task_id is required for getting a task")
-
-        print(f"task_id being used: {task_id}")
-        print("==== End parameters ====\n")
-
-        action = GetTask()
-
-        url = f"{action.url}{action.path}".format(task_id=task_id)
-        print(f"URL being used: {url}")
-
-        # Make sure all parameters are JSON serializable
-        params = {
-            key: _ensure_serializable(value)
-            for key, value in kwargs.items()
-            if value is not None and key != "kwargs" and key != "task_id"
-        }
-
-        response = requests.get(url, headers=self.headers, params=params)
-        print(f"Response status code: {response.status_code}")
-
-        if response.status_code == 200:
-            response_json = response.json()
-        else:
-            try:
-                response_json = response.json()
-                print(f"Error response: {response_json}")
-            except requests.JSONDecodeError:
-                response_json = {"error": "Invalid JSON response"}
-                print("Could not decode JSON response")
-
-        task_details = GetTaskResponse(data=response_json)
-
-        # Format the response for better readability
-        if task_details.data and isinstance(task_details.data, dict):
-            task = task_details.data
-            formatted_response = {
-                "name": task.get("name", "N/A"),
-                "id": task.get("id", "N/A"),
-                "status": task.get("status", {}).get("status", "N/A"),
-                "assignees": [
-                    a.get("username", "N/A") for a in task.get("assignees", [])
-                ],
-                "description": task.get("description", "N/A"),
-                "due_date": task.get("due_date", "N/A"),
-                "time_estimate": task.get("time_estimate", "N/A"),
-            }
-
-            print(f"Found task: {formatted_response}")
-            return formatted_response
-        else:
-            error_message = "Task not found or API error occurred"
-            if "err" in task_details.data:
-                error_message = f"Error: {task_details.data['err']}"
-
-            print(f"Result: {error_message}")
-            return error_message
 
 
 # Util for converting dates

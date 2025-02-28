@@ -6,7 +6,11 @@ from dotenv import load_dotenv
 from openai import AzureOpenAI
 from agency_swarm import set_openai_client, Agent, Agency
 
-from tools.clickup_tools import initialize_clickup_tools, GetTasksTool, GetTaskTool
+from agents.ClickUpAgent.tools.ClickUpTools import (
+    initialize_clickup_tools,
+    GetTasksTool,
+    GetTaskTool,
+)
 
 load_dotenv()
 

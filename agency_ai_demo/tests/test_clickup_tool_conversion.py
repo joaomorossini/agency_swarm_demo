@@ -15,7 +15,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from utils.tool_wrapper import convert_langchain_tool, LangChainBaseTool
 
 # Import all tools from the clickup_tools module
-from tools.clickup_tools import (
+from agents.ClickUpAgent.tools.ClickUpTools import (
     CreateTaskTool,
     DeleteTaskTool,
     UpdateTaskTool,
