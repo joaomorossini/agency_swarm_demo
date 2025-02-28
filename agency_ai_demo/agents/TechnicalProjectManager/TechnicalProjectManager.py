@@ -1,4 +1,5 @@
 from agency_swarm.agents import Agent
+from .tools.SendWhatsAppText import SendWhatsAppText
 
 
 class TechnicalProjectManager(Agent):
@@ -9,7 +10,7 @@ class TechnicalProjectManager(Agent):
             instructions="./instructions.md",
             files_folder="./files",
             schemas_folder="./schemas",
-            tools=[],
+            tools=[SendWhatsAppText],
             tools_folder="./tools",
             model="gpt-4o",
             temperature=0.3,
