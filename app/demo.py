@@ -98,11 +98,11 @@ class NotionAgency(Agency):
             raise Exception("Please install gradio: pip install gradio")
 
         # Use the specific Notion embed URL provided by the user
-        notion_embed_url = "https://morossini.notion.site/ebd/1a88235ee2ff801e8f93d8ab2e14de1d?v=1a88235ee2ff8063a16b000c5757dbd3"
+        notion_embed_url = os.getenv("NOTION_DB_URL")
 
         # Create iframe with the exact attributes provided by the user
         iframe_html = f"""
-        <iframe src="{notion_embed_url}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>
+        <iframe src="{notion_embed_url}" width="100%" height="400" frameborder="1" allowfullscreen></iframe>
         <div style="text-align: center; margin-top: 5px; font-size: 12px; color: #888;">
           If the Notion board doesn't appear, please ensure your Notion page is shared publicly with "Share to web" enabled.
         </div>
