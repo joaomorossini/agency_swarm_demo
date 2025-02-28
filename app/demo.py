@@ -80,15 +80,15 @@ def get_tools(file_name):
 load_dotenv()
 
 
-class NotionAgency(Agency):
+class ProjectManagementAgency(Agency):
     """
     Extension of the Agency class that includes a Notion database iframe
     in the Gradio interface.
     """
 
-    def demo_gradio(self, height=450, dark_mode=True, **kwargs):
+    def custom_demo(self, height=450, dark_mode=True, **kwargs):
         """
-        Custom implementation of demo_gradio that includes a Notion iframe.
+        Custom implementation of custom_demo that includes a Notion iframe.
         Inherits most functionality from the parent class but adds an iframe
         at the top of the interface.
         """
@@ -159,7 +159,7 @@ class NotionAgency(Agency):
             with gr.Row() as iframe_row:
                 iframe = gr.HTML(value=generate_iframe_html())
 
-            # Original components from Agency.demo_gradio
+            # Original components from Agency.custom_demo
             chatbot = gr.Chatbot(height=height)
             with gr.Row():
                 with gr.Column(scale=9):
@@ -599,7 +599,7 @@ class NotionAgency(Agency):
             demo.queue(default_concurrency_limit=10)
 
         # Launch the demo
-        demo.launch(**kwargs)
+        demo.launch(**kwargs)  # TODO add share=True
         return demo
 
 
@@ -617,13 +617,13 @@ def main():
 
     set_openai_client(client)
 
-    # Create our agents
+    # Instantiate agents
     technical_project_manager = TechnicalProjectManager()
     research_and_report_agent = ResearchAndReportAgent()
     notion_project_agent = NotionProjectAgent()
 
     # Create the agency with our agents - using NotionAgency instead of Agency
-    agency = NotionAgency(
+    agency = ProjectManagementAgency(
         agency_chart=[
             technical_project_manager,
             [technical_project_manager, notion_project_agent],
@@ -633,7 +633,7 @@ def main():
     )
 
     # Launch the demo with Gradio's built-in deployment
-    return agency.demo_gradio(height=450)
+    return agency.custom_demo(height=250)
 
 
 if __name__ == "__main__":
