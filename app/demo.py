@@ -19,9 +19,9 @@ from openai.types.beta.threads.runs import (
 from agency_swarm.tools import FileSearch, CodeInterpreter
 
 # Import our agents - using the same imports as in demo.ipynb
-from agents.NotionProjectAgent import NotionProjectAgent
 from agents.TechnicalProjectManager import TechnicalProjectManager
-from agents.ResearchAndReportAgent import ResearchAndReportAgent
+from agents.BrowsingAgent import BrowsingAgent
+from agents.Devid import Devid
 
 
 # Helper functions for file handling (from agency.py)
@@ -145,6 +145,10 @@ class ProjectManagementAgency(Agency):
 
             # Create state for iframe visibility
             iframe_state = gr.State(value=True)
+
+            # Add Title and Image inline
+            with gr.Row():
+                gr.Markdown("# 🐝🤖🐝 Project Management Agency Swarm Demo 🐝🤖🐝")
 
             # Add toggle button and refresh button at the top
             with gr.Row():
@@ -619,15 +623,15 @@ def main():
 
     # Instantiate agents
     technical_project_manager = TechnicalProjectManager()
-    research_and_report_agent = ResearchAndReportAgent()
-    notion_project_agent = NotionProjectAgent()
+    browsing_agent = BrowsingAgent()
+    developer_agent = Devid()
 
     # Create the agency with our agents - using NotionAgency instead of Agency
     agency = ProjectManagementAgency(
         agency_chart=[
             technical_project_manager,
-            [technical_project_manager, notion_project_agent],
-            [technical_project_manager, research_and_report_agent],
+            [technical_project_manager, browsing_agent],
+            [technical_project_manager, developer_agent],
         ],
         shared_instructions="agency_manifesto.md",
     )

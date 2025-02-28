@@ -18,6 +18,7 @@ class Devid(Agent):
             tools=[FileSearch],
             tools_folder="./tools",
             validation_attempts=1,
+            model="gpt-4o",
             temperature=0,
             max_prompt_tokens=25000,
         )

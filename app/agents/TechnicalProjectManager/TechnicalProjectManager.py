@@ -1,10 +1,10 @@
 from agency_swarm.agents import Agent
 from .tools.SendWhatsAppText import SendWhatsAppText
-from .tools.CreateTask import CreateTask
-from .tools.UpdateTask import UpdateTask
-from .tools.DeleteTask import DeleteTask
-from .tools.GetTask import GetTask
-from .tools.GetTasks import GetTasks
+from .tools.CreateTask import CreateTaskTool
+from .tools.UpdateTask import UpdateTaskTool
+from .tools.DeleteTask import DeleteTaskTool
+from .tools.GetTask import GetTaskTool
+from .tools.GetTasks import GetTasksTool
 
 
 class TechnicalProjectManager(Agent):
@@ -17,11 +17,11 @@ class TechnicalProjectManager(Agent):
             schemas_folder="./schemas",
             tools=[
                 SendWhatsAppText,
-                CreateTask,
-                UpdateTask,
-                DeleteTask,
-                GetTask,
-                GetTasks,
+                CreateTaskTool,
+                UpdateTaskTool,
+                DeleteTaskTool,
+                GetTaskTool,
+                GetTasksTool,
             ],
             tools_folder="./tools",
             model="gpt-4o",
