@@ -43,10 +43,10 @@ class CreateTaskTool(BaseTool):
         description="Due date of the task in YYYY-MM-DD format.",
     )
 
-    assigned_to: List[str] = Field(
-        default=None,
-        description="List of user IDs to assign the task to.",
-    )
+    # assigned_to: List[str] = Field(
+    #     default=None,
+    #     description="List of user IDs to assign the task to.",
+    # )
 
     content_blocks: List[Dict[str, Any]] = Field(
         default=None,
@@ -118,9 +118,9 @@ class CreateTaskTool(BaseTool):
             properties["Due Date"] = {"date": {"start": self.due_date}}
 
         # Add assigned people if provided
-        if self.assigned_to:
-            properties["Assigned to"] = {
-                "people": [{"id": user_id} for user_id in self.assigned_to]
-            }
+        # if self.assigned_to:
+        #     properties["Assigned to"] = {
+        #         "people": [{"id": user_id} for user_id in self.assigned_to]
+        #     }
 
         return properties
